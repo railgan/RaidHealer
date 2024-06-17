@@ -1,17 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AbilitySelection : MonoBehaviour
-{
-    private PlayerAbilities playerAbilities;
-
-    void Start()
-    {
-        playerAbilities = FindObjectOfType<PlayerAbilities>();
-        // Make sure to initialize your UI here with all available abilities
-    }
-    // Implement the rest of your UI logic
-}
 
 public class PlayerAbilities : MonoBehaviour
 {
@@ -22,7 +11,7 @@ public class PlayerAbilities : MonoBehaviour
     {
         // Initialize available abilities here or in another appropriate place
         availableAbilities.Add(new HealAbility()); // Add the Heal ability to the available pool
-
+        Debug.Log("equiped heal");
         // Directly equip the Heal ability for demonstration purposes
         EquipAbility(0, new HealAbility()); 
     }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Ability
+public abstract class Ability 
 {
     public string abilityName;
     public Sprite icon; // If you want to display the ability in the UI
