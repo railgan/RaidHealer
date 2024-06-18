@@ -17,18 +17,16 @@ public class HasteBuffAbility : Ability
         {
             if (target != null)
             {
-                target.GetComponent<CharacterBase>().Heal(1); // Perform actions with the target...
-                abilityUser.useMana(manaCost);
+                Buff hasteBuff = new Buff(
+                "Haste Buff",
+                5f,
+                (c) => c.haste += 20,
+                (c) => c.haste -= 20
 
-                // Use ParticleManager to spawn the healing effect
-                if (ParticleManager.Instance != null)
-                {
-                    ParticleManager.Instance.SpawnParticleEffect(healingEffectPrefabName, target.transform.position, target.transform.rotation);
-                }
-                else
-                {
-                    Debug.LogError("ParticleManager instance is not found.");
-                }
+            );
+                target.GetComponent<CharacterBase>().ApplyBuff(hasteBuff);
+                abilityUser.useMana(manaCost);
+              
             }
         }
     }
