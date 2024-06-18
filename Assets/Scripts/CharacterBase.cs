@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterBase : MonoBehaviour
@@ -10,6 +11,7 @@ public class CharacterBase : MonoBehaviour
     public GameObject healthBarPrefab;
     private HealthBar healthBar;
     private ManaBar manaBar;
+    private List<Buff> activeBuffs = new List<Buff>();
 
     protected virtual void Start()
     {
@@ -70,6 +72,17 @@ public class CharacterBase : MonoBehaviour
 
         Debug.Log(gameObject.name + " healed for " + amount + ". Current health: " + health);
     }
+    public void ApplyBuff(Buff buff)
+    {
+        buff.ApplyEffect?.Invoke(this);
+        activeBuffs.Add(buff);
+    }
+
+    public void RemoveBuff(Buff buff)
+    {
+        buff.RemoveEffect?.Invoke(this);
+        activeBuffs.Remove(buff);
+    }
 
     public void useMana(float amount)
     {
@@ -98,5 +111,16 @@ public class CharacterBase : MonoBehaviour
         // This could be destroying the GameObject, playing an animation, etc.
         Debug.Log(gameObject.name + " died.");
         Destroy(gameObject);
+    }
+
+    protected virtual void Update()
+    {
+        for (int i = activeBuffs.Count - 1; i >= 0; i--)
+        {
+            if (activeBuffs[i].Update(Time.deltaTime))
+            {
+                RemoveBuff(activeBuffs[i]);
+            }
+        }
     }
 }
