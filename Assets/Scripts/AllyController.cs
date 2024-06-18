@@ -23,13 +23,12 @@ public class AllyController : CharacterBase
     protected override void Update()
     {
         base.Update();
-        calculatedAttackSpeed = attackSpeed * haste/100;
+        calculatedAttackSpeed = attackSpeed * (1/haste*100);
         Debug.Log(calculatedAttackSpeed);
         attackCooldown += Time.deltaTime;
         if (attackCooldown >= calculatedAttackSpeed)
         {
             AutoAttack();
-            haste += 1;
             attackCooldown = 0f;
         }
     }
