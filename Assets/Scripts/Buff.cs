@@ -29,4 +29,9 @@ public class Buff
     {
         return remainingDuration;
     }
+
+    public void RefreshDuration()
+    {
+        remainingDuration = duration;
+    }
 }

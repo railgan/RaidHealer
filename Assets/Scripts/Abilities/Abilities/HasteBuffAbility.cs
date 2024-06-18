@@ -18,7 +18,7 @@ public class HasteBuffAbility : Ability
             if (target != null)
             {
                 Buff hasteBuff = new Buff(
-                "Haste Buff",
+                "Haste",
                 5f,
                 (c) => c.haste += 20,
                 (c) => c.haste -= 20

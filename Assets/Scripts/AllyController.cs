@@ -24,7 +24,6 @@ public class AllyController : CharacterBase
     {
         base.Update();
         calculatedAttackSpeed = attackSpeed * (1/haste*100);
-        Debug.Log(calculatedAttackSpeed);
         attackCooldown += Time.deltaTime;
         if (attackCooldown >= calculatedAttackSpeed)
         {

@@ -75,8 +75,18 @@ public class CharacterBase : MonoBehaviour
     }
     public void ApplyBuff(Buff buff)
     {
-        buff.ApplyEffect?.Invoke(this);
-        activeBuffs.Add(buff);
+        Buff existingBuff = activeBuffs.Find(b => b.name == buff.name);
+        if (existingBuff != null)
+        {
+            existingBuff.RefreshDuration();
+            //Debug.Log("Buff " + buff.name + " refreshed.");
+        }
+        else
+        {
+            buff.ApplyEffect?.Invoke(this);
+            activeBuffs.Add(buff);
+            //Debug.Log("Buff " + buff.name + " applied.");
+        }
     }
 
     public void RemoveBuff(Buff buff)
