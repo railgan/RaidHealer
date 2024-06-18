@@ -8,6 +8,7 @@ public class CharacterBase : MonoBehaviour
     public float health = 100f;
     public float maxHealth = 100f;
     public float movementSpeed = 5f;
+    public float haste = 100f;
     public GameObject healthBarPrefab;
     private HealthBar healthBar;
     private ManaBar manaBar;

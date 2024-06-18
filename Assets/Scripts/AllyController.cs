@@ -9,6 +9,8 @@ public class AllyController : CharacterBase
 
     public float attackSpeed = 1f;
     private float attackCooldown;
+    private float calculatedAttackSpeed;
+
 
     // Start is called before the first frame update
     protected override void Start()
@@ -18,12 +20,16 @@ public class AllyController : CharacterBase
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
+        base.Update();
+        calculatedAttackSpeed = attackSpeed * haste/100;
+        Debug.Log(calculatedAttackSpeed);
         attackCooldown += Time.deltaTime;
-        if (attackCooldown >= attackSpeed)
+        if (attackCooldown >= calculatedAttackSpeed)
         {
             AutoAttack();
+            haste += 1;
             attackCooldown = 0f;
         }
     }
