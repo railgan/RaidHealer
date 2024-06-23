@@ -74,9 +74,9 @@ public class Board : MonoBehaviour
                 // Check if the current position is empty (null)
                 if (allTiles[x, y] == null)
                 {
-                    // Instantiate a new tile prefab at this position
+                    // Instantiate a new tile prefab above the board
                     int tileToUse = Random.Range(0, tilePrefabs.Length);
-                    GameObject newTile = Instantiate(tilePrefabs[tileToUse], new Vector3(x, y, 0), Quaternion.identity);
+                    GameObject newTile = Instantiate(tilePrefabs[tileToUse], new Vector3(x, height, 0), Quaternion.identity);
 
                     // Scale the new tile (if needed)
                     ScaleTile(newTile);
@@ -85,16 +85,21 @@ public class Board : MonoBehaviour
                     newTile.transform.parent = transform; // Assuming this script is attached to the board
                     newTile.name = $"({x}, {y})";
 
-                    // Update the allTiles array with the new tile
+                    // Update the Tile component's column and row
+                    Tile newTileComponent = newTile.GetComponent<Tile>();
+                    newTileComponent.column = x;
+                    newTileComponent.row = y;
+
+                    // Update the allTiles array
                     allTiles[x, y] = newTile;
 
-                    // Update the Tile component's column and row (if necessary)
-                    newTile.GetComponent<Tile>().column = x;
-                    newTile.GetComponent<Tile>().row = y;
+                    // Visualize the movement of the new tile to its position
+                    StartCoroutine(MoveTileDownCoroutine(newTile, new Vector3(x, y, 0)));
                 }
             }
         }
     }
+
 
     void ScaleTile(GameObject tile)
     {
@@ -187,6 +192,7 @@ public class Board : MonoBehaviour
                             tilesToDestroy.Add(allTiles[x, y - 2]);
                         }
                     }
+
                 }
             }
         }
@@ -202,6 +208,10 @@ public class Board : MonoBehaviour
                 Destroy(tile);
             }
         }
+        // Move existing tiles down to fill gaps
+        MoveTilesDown();
+
+        // Refill the board with new tiles
         RefillBoard();
     }
 
@@ -213,5 +223,66 @@ public class Board : MonoBehaviour
 
         return tag1 == tag2 && tag2 == tag3;
     }
+
+    void MoveTilesDown()
+    {
+        bool tilesMoved = true;
+
+        while (tilesMoved)
+        {
+            tilesMoved = false;
+
+            // Iterate through each column from top to bottom
+            for (int x = 0; x < width; x++)
+            {
+                // Iterate through each row from bottom to top
+                for (int y = 1; y < height; y++)
+                {
+                    if (allTiles[x, y] == null && allTiles[x, y - 1] != null)
+                    {
+                        // Move the tile down
+                        allTiles[x, y] = allTiles[x, y - 1];
+                        allTiles[x, y - 1] = null;
+
+                        // Update the Tile component's row
+                        allTiles[x, y].GetComponent<Tile>().row = y;
+
+                        // Visualize the movement of the tile
+                        StartCoroutine(MoveTileDownCoroutine(allTiles[x, y], new Vector3(x, y, 0)));
+
+                        tilesMoved = true;
+                    }
+                }
+            }
+        }
+    }
+
+    IEnumerator MoveTileDownCoroutine(GameObject tile, Vector3 targetPosition)
+    {
+        float moveSpeed = 5f; // Adjust as needed
+
+        while (Vector3.Distance(tile.transform.position, targetPosition) > 0.01f)
+        {
+            tile.transform.position = Vector3.Lerp(tile.transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        tile.transform.position = targetPosition; // Ensure exact positioning
+
+        // Update the tile's properties to reflect the new position
+        Tile tileComponent = tile.GetComponent<Tile>();
+        int newColumn = (int)targetPosition.x;
+        int newRow = (int)targetPosition.y;
+
+        tileComponent.column = newColumn;
+        tileComponent.row = newRow;
+
+        // Update the allTiles array
+        allTiles[newColumn, newRow] = tile;
+    }
+
+
+
+
 }
 
