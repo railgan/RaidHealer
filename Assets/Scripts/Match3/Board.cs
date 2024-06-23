@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Board : MonoBehaviour
@@ -9,13 +10,16 @@ public class Board : MonoBehaviour
     public GameObject[] tilePrefabs;
     public float tileSize = 1.0f;  // Size of each tile in Unity units
 
-    public GameObject[,] allTiles;
+    public GameObject[,] allTiles;  // Change to public
     public bool isSwapping = false;
 
     void Start()
     {
         allTiles = new GameObject[width, height];
+
+        // Move the board to the bottom left of the camera
         MoveBoardToBottomLeft();
+
         SetUp();
     }
 
@@ -34,61 +38,10 @@ public class Board : MonoBehaviour
                 tile.transform.parent = this.transform;
                 tile.name = "( " + x + ", " + y + " )";
                 allTiles[x, y] = tile;
+                tile.GetComponent<Tile>().column = x;
+                tile.GetComponent<Tile>().row = y;
             }
         }
-    }
-
-    void ScaleTile(GameObject tile)
-    {
-        // Get the sprite renderer component
-        SpriteRenderer spriteRenderer = tile.GetComponent<SpriteRenderer>();
-
-        // Calculate the scaling factor
-        float scaleX = tileSize / spriteRenderer.bounds.size.x;
-        float scaleY = tileSize / spriteRenderer.bounds.size.y;
-
-        // Apply the scaling factor
-        tile.transform.localScale = new Vector3(scaleX, scaleY, 1.0f);
-    }
-
-    public void FindMatches()
-    {
-        // Horizontal matches
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                GameObject currentTile = allTiles[x, y];
-                if (currentTile != null)
-                {
-                    if (x > 1 && allTiles[x - 1, y] != null && allTiles[x - 2, y] != null)
-                    {
-                        if (allTiles[x - 1, y].tag == currentTile.tag && allTiles[x - 2, y].tag == currentTile.tag)
-                        {
-                            // Match found
-                            Destroy(allTiles[x, y]);
-                            Destroy(allTiles[x - 1, y]);
-                            Destroy(allTiles[x - 2, y]);
-                        }
-                    }
-                    if (y > 1 && allTiles[x, y - 1] != null && allTiles[x, y - 2] != null)
-                    {
-                        if (allTiles[x, y - 1].tag == currentTile.tag && allTiles[x, y - 2].tag == currentTile.tag)
-                        {
-                            // Match found
-                            Destroy(allTiles[x, y]);
-                            Destroy(allTiles[x, y - 1]);
-                            Destroy(allTiles[x, y - 2]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void RefillBoard()
-    {
-        StartCoroutine(FillBoard());
     }
 
     private IEnumerator FillBoard()
@@ -108,6 +61,52 @@ public class Board : MonoBehaviour
                 }
             }
         }
+    }
+
+    void RefillBoard()
+    {
+        // Iterate through each column from top to bottom
+        for (int x = 0; x < width; x++)
+        {
+            // Iterate through each row from bottom to top
+            for (int y = 0; y < height; y++)
+            {
+                // Check if the current position is empty (null)
+                if (allTiles[x, y] == null)
+                {
+                    // Instantiate a new tile prefab at this position
+                    int tileToUse = Random.Range(0, tilePrefabs.Length);
+                    GameObject newTile = Instantiate(tilePrefabs[tileToUse], new Vector3(x, y, 0), Quaternion.identity);
+
+                    // Scale the new tile (if needed)
+                    ScaleTile(newTile);
+
+                    // Set parent and name for organization (optional)
+                    newTile.transform.parent = transform; // Assuming this script is attached to the board
+                    newTile.name = $"({x}, {y})";
+
+                    // Update the allTiles array with the new tile
+                    allTiles[x, y] = newTile;
+
+                    // Update the Tile component's column and row (if necessary)
+                    newTile.GetComponent<Tile>().column = x;
+                    newTile.GetComponent<Tile>().row = y;
+                }
+            }
+        }
+    }
+
+    void ScaleTile(GameObject tile)
+    {
+        // Get the sprite renderer component
+        SpriteRenderer spriteRenderer = tile.GetComponent<SpriteRenderer>();
+
+        // Calculate the scaling factor
+        float scaleX = tileSize / spriteRenderer.bounds.size.x;
+        float scaleY = tileSize / spriteRenderer.bounds.size.y;
+
+        // Apply the scaling factor
+        tile.transform.localScale = new Vector3(scaleX, scaleY, 1.0f);
     }
 
     void MoveBoardToBottomLeft()
@@ -143,11 +142,76 @@ public class Board : MonoBehaviour
             yield return null;
         }
 
-        // Check for matches and revert if no match is found
-        // (Add your match checking logic here)
+        // Check for matches
+        yield return new WaitForSeconds(0.1f);
+        CheckForMatches();
 
         isSwapping = false;
     }
 
+    void CheckForMatches()
+    {
+        List<GameObject> tilesToDestroy = new List<GameObject>();
 
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (allTiles[x, y] != null)
+                {
+                    Tile currentTile = allTiles[x, y].GetComponent<Tile>();
+
+                    // Horizontal match check
+                    if (x > 1 && allTiles[x - 1, y] != null && allTiles[x - 2, y] != null)
+                    {
+                        Tile leftTile1 = allTiles[x - 1, y].GetComponent<Tile>();
+                        Tile leftTile2 = allTiles[x - 2, y].GetComponent<Tile>();
+
+                        if (AreTilesSameTag(currentTile.gameObject, leftTile1.gameObject, leftTile2.gameObject))
+                        {
+                            tilesToDestroy.Add(allTiles[x, y]);
+                            tilesToDestroy.Add(allTiles[x - 1, y]);
+                            tilesToDestroy.Add(allTiles[x - 2, y]);
+                        }
+                    }
+
+                    // Vertical match check
+                    if (y > 1 && allTiles[x, y - 1] != null && allTiles[x, y - 2] != null)
+                    {
+                        Tile downTile1 = allTiles[x, y - 1].GetComponent<Tile>();
+                        Tile downTile2 = allTiles[x, y - 2].GetComponent<Tile>();
+                        if (AreTilesSameTag(currentTile.gameObject, downTile1.gameObject, downTile2.gameObject))
+                        {
+                            tilesToDestroy.Add(allTiles[x, y]);
+                            tilesToDestroy.Add(allTiles[x, y - 1]);
+                            tilesToDestroy.Add(allTiles[x, y - 2]);
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (tilesToDestroy.Count > 0)
+        {
+            foreach (GameObject tile in tilesToDestroy)
+            {
+                int x = (int)tile.transform.position.x;
+                int y = (int)tile.transform.position.y;
+
+                allTiles[x, y] = null;
+                Destroy(tile);
+            }
+        }
+        RefillBoard();
+    }
+
+    bool AreTilesSameTag(GameObject tile1, GameObject tile2, GameObject tile3)
+    {
+        string tag1 = tile1.tag;
+        string tag2 = tile2.tag;
+        string tag3 = tile3.tag;
+
+        return tag1 == tag2 && tag2 == tag3;
+    }
 }
+

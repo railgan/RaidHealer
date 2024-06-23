@@ -39,7 +39,6 @@ public class Tile : MonoBehaviour
         if (!board.isSwapping)
         {
             firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log($"Tile clicked: ({column}, {row})");
         }
     }
 
@@ -55,7 +54,6 @@ public class Tile : MonoBehaviour
     void CalculateAngle()
     {
         swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * 180 / Mathf.PI;
-        Debug.Log($"Swipe angle: {swipeAngle}");
         MovePieces();
     }
 
@@ -63,26 +61,22 @@ public class Tile : MonoBehaviour
     {
         if (swipeAngle > -45 && swipeAngle <= 45 && column < board.width - 1)
         {
-            // Right swipe
-            Debug.Log($"Swiping right from ({column}, {row}) to ({column + 1}, {row})");
+
             StartCoroutine(board.SwapTiles(this, board.allTiles[column + 1, row].GetComponent<Tile>()));
         }
         else if (swipeAngle > 45 && swipeAngle <= 135 && row < board.height - 1)
         {
-            // Up swipe
-            Debug.Log($"Swiping up from ({column}, {row}) to ({column}, {row + 1})");
+
             StartCoroutine(board.SwapTiles(this, board.allTiles[column, row + 1].GetComponent<Tile>()));
         }
         else if ((swipeAngle > 135 || swipeAngle <= -135) && column > 0)
         {
-            // Left swipe
-            Debug.Log($"Swiping left from ({column}, {row}) to ({column - 1}, {row})");
+
             StartCoroutine(board.SwapTiles(this, board.allTiles[column - 1, row].GetComponent<Tile>()));
         }
         else if (swipeAngle < -45 && swipeAngle >= -135 && row > 0)
         {
-            // Down swipe
-            Debug.Log($"Swiping down from ({column}, {row}) to ({column}, {row - 1})");
+
             StartCoroutine(board.SwapTiles(this, board.allTiles[column, row - 1].GetComponent<Tile>()));
         }
     }

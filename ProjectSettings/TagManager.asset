@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Friendly
   - Enemy
+  - blackberry
   layers:
   - Default
   - TransparentFX
