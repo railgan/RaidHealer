@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -9,22 +7,45 @@ public class Tile : MonoBehaviour
     private Vector2 finalTouchPosition;
     private Vector2 tempPosition;
 
-    public float swipeAngle = 0;
     public int column;
     public int row;
+    public int targetX;
+    public int targetY;
+    public bool isSwapping = false;
+    public float swipeAngle = 0;
+    public float swipeResistance = 1.0f;
+
+    public GameObject[,] allTiles;  // Change to public
 
     void Start()
     {
         board = FindObjectOfType<Board>();
+        targetX = (int)transform.position.x;
+        targetY = (int)transform.position.y;
+        column = targetX;
+        row = targetY;
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (isSwapping)
+        {
+            MoveTile();
+        }
+    }
+
+    private void OnMouseDown()
+    {
+        if (!board.isSwapping)
         {
             firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Debug.Log($"Tile clicked: ({column}, {row})");
         }
-        if (Input.GetMouseButtonUp(0))
+    }
+
+    private void OnMouseUp()
+    {
+        if (!board.isSwapping)
         {
             finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             CalculateAngle();
@@ -34,7 +55,8 @@ public class Tile : MonoBehaviour
     void CalculateAngle()
     {
         swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * 180 / Mathf.PI;
-        Debug.Log(swipeAngle);
+        Debug.Log($"Swipe angle: {swipeAngle}");
+        MovePieces();
     }
 
     void MovePieces()
@@ -42,35 +64,43 @@ public class Tile : MonoBehaviour
         if (swipeAngle > -45 && swipeAngle <= 45 && column < board.width - 1)
         {
             // Right swipe
-            tempPosition = transform.position;
-            transform.position = new Vector2(column + 1, row);
-            board.allTiles[column + 1, row].transform.position = tempPosition;
-            column += 1;
+            Debug.Log($"Swiping right from ({column}, {row}) to ({column + 1}, {row})");
+            StartCoroutine(board.SwapTiles(this, board.allTiles[column + 1, row].GetComponent<Tile>()));
         }
         else if (swipeAngle > 45 && swipeAngle <= 135 && row < board.height - 1)
         {
             // Up swipe
-            tempPosition = transform.position;
-            transform.position = new Vector2(column, row + 1);
-            board.allTiles[column, row + 1].transform.position = tempPosition;
-            row += 1;
+            Debug.Log($"Swiping up from ({column}, {row}) to ({column}, {row + 1})");
+            StartCoroutine(board.SwapTiles(this, board.allTiles[column, row + 1].GetComponent<Tile>()));
         }
         else if ((swipeAngle > 135 || swipeAngle <= -135) && column > 0)
         {
             // Left swipe
-            tempPosition = transform.position;
-            transform.position = new Vector2(column - 1, row);
-            board.allTiles[column - 1, row].transform.position = tempPosition;
-            column -= 1;
+            Debug.Log($"Swiping left from ({column}, {row}) to ({column - 1}, {row})");
+            StartCoroutine(board.SwapTiles(this, board.allTiles[column - 1, row].GetComponent<Tile>()));
         }
         else if (swipeAngle < -45 && swipeAngle >= -135 && row > 0)
         {
             // Down swipe
-            tempPosition = transform.position;
-            transform.position = new Vector2(column, row - 1);
-            board.allTiles[column, row - 1].transform.position = tempPosition;
-            row -= 1;
+            Debug.Log($"Swiping down from ({column}, {row}) to ({column}, {row - 1})");
+            StartCoroutine(board.SwapTiles(this, board.allTiles[column, row - 1].GetComponent<Tile>()));
         }
     }
 
+    void MoveTile()
+    {
+        targetX = column;
+        targetY = row;
+        Vector2 tempPosition = new Vector2(targetX, targetY);
+        transform.position = Vector2.Lerp(transform.position, tempPosition, 0.4f);
+
+        if (Vector2.Distance(transform.position, tempPosition) < 0.1f)
+        {
+            transform.position = tempPosition;
+            board.isSwapping = false;
+            isSwapping = false;
+        }
+    }
+
+    
 }

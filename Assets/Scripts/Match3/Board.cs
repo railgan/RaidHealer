@@ -10,6 +10,7 @@ public class Board : MonoBehaviour
     public float tileSize = 1.0f;  // Size of each tile in Unity units
 
     public GameObject[,] allTiles;
+    public bool isSwapping = false;
 
     void Start()
     {
@@ -116,6 +117,36 @@ public class Board : MonoBehaviour
 
         // Adjust the board's position
         this.transform.position = new Vector3(bottomLeft.x + tileSize / 2, bottomLeft.y + tileSize / 2, 0);
+    }
+
+    public IEnumerator SwapTiles(Tile tile1, Tile tile2)
+    {
+        isSwapping = true;
+        tile1.isSwapping = true;
+        tile2.isSwapping = true;
+
+        // Swap the tiles in the grid
+        int tempColumn = tile1.column;
+        int tempRow = tile1.row;
+        tile1.column = tile2.column;
+        tile1.row = tile2.row;
+        tile2.column = tempColumn;
+        tile2.row = tempRow;
+
+        // Swap the tiles in the allTiles array
+        allTiles[tile1.column, tile1.row] = tile1.gameObject;
+        allTiles[tile2.column, tile2.row] = tile2.gameObject;
+
+        // Wait until the tiles have moved
+        while (tile1.isSwapping || tile2.isSwapping)
+        {
+            yield return null;
+        }
+
+        // Check for matches and revert if no match is found
+        // (Add your match checking logic here)
+
+        isSwapping = false;
     }
 
 
