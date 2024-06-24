@@ -33,7 +33,7 @@ public class ParticleManager : MonoBehaviour
         }
     }
 
-    public void DrawHealingBeam(Vector3 start, Vector3 end, Color beamColor, float beamWidth, float beamDuration)
+    public void DrawBeam(Transform abilityUser, Vector3 end, Color startColor, Color endColor, float beamWidth, float beamDuration)
     {
         GameObject beamObject = new GameObject("HealingBeam");
         LineRenderer lineRenderer = beamObject.AddComponent<LineRenderer>();
@@ -41,13 +41,36 @@ public class ParticleManager : MonoBehaviour
         lineRenderer.startWidth = beamWidth;
         lineRenderer.endWidth = beamWidth;
         lineRenderer.material = new Material(Shader.Find("Custom/ScrollingBeamShader"));
-        lineRenderer.material.SetColor("_Color", beamColor);
+        lineRenderer.material.SetColor("_StartColor", startColor);
+        lineRenderer.material.SetColor("_EndColor", endColor);
         lineRenderer.material.SetFloat("_ScrollSpeed", 2f); // Adjust scroll speed as needed
+        lineRenderer.material.SetFloat("_FadeLength", 0.5f); // Adjust fade length as needed
 
-        lineRenderer.SetPosition(0, start);
+        lineRenderer.SetPosition(0, abilityUser.position);
         lineRenderer.SetPosition(1, end);
 
+        // Start a coroutine to update the beam position
+        StartCoroutine(UpdateBeamPosition(abilityUser, lineRenderer, end, beamDuration));
+    }
+
+    private System.Collections.IEnumerator UpdateBeamPosition(Transform abilityUser, LineRenderer lineRenderer, Vector3 end, float duration)
+    {
+        float timer = 0f;
+        while (timer < duration)
+        {
+            if (lineRenderer != null)
+            {
+                lineRenderer.SetPosition(0, abilityUser.position);
+                lineRenderer.SetPosition(1, end);
+            }
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
         // Destroy the beam object after the duration
-        Destroy(beamObject, beamDuration);
+        if (lineRenderer != null)
+        {
+            Destroy(lineRenderer.gameObject);
+        }
     }
 }

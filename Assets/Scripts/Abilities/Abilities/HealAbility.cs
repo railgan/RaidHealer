@@ -7,7 +7,8 @@ public class HealAbility : Ability
     TargetingSystem targetingSystem = TargetingSystem.Instance;
     public string healingEffectPrefabName = "HealingEffect"; // Name of the healing effect prefab in Resources folder
 
-    public Color beamColor = Color.green;
+    public Color startBeamColor = Color.green;
+    public Color endBeamColor = new Color(0f, 1f, 0f, 0.5f); // Fades to half transparent green
     public float beamWidth = 0.1f;
     public float beamDuration = 0.5f; // Duration the beam will be visible
 
@@ -27,7 +28,7 @@ public class HealAbility : Ability
                 if (ParticleManager.Instance != null)
                 {
                     ParticleManager.Instance.SpawnParticleEffect(healingEffectPrefabName, target.transform.position, target.transform.rotation);
-                    ParticleManager.Instance.DrawHealingBeam(abilityUser.transform.position, target.transform.position, beamColor, beamWidth, beamDuration);
+                    ParticleManager.Instance.DrawBeam(abilityUser.transform, target.transform.position, startBeamColor, endBeamColor, beamWidth, beamDuration);
                 }
                 else
                 {
