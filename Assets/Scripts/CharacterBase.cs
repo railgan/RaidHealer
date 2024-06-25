@@ -13,6 +13,17 @@ public class CharacterBase : MonoBehaviour
     private HealthBar healthBar;
     private ManaBar manaBar;
     private List<Buff> activeBuffs = new List<Buff>();
+    private BuffManager buffManager;
+
+
+    private void Awake()
+    {
+        buffManager = BuffManager.Instance;
+        if (buffManager == null)
+        {
+            Debug.LogError("BuffManager not found on character.");
+        }
+    }
 
     protected virtual void Start()
     {
@@ -59,6 +70,17 @@ public class CharacterBase : MonoBehaviour
 
     }
 
+    protected virtual void Update()
+    {
+        for (int i = activeBuffs.Count - 1; i >= 0; i--)
+        {
+            if (activeBuffs[i].Update(Time.deltaTime))
+            {
+                RemoveBuff(activeBuffs[i]);
+            }
+        }
+    }
+
     public void Heal(float amount)
     {
         // Add the specified amount to health, making sure not to exceed maxHealth
@@ -75,24 +97,32 @@ public class CharacterBase : MonoBehaviour
     }
     public void ApplyBuff(Buff buff)
     {
-        Buff existingBuff = activeBuffs.Find(b => b.name == buff.name);
-        if (existingBuff != null)
-        {
-            existingBuff.RefreshDuration();
-            //Debug.Log("Buff " + buff.name + " refreshed.");
-        }
-        else
-        {
-            buff.ApplyEffect?.Invoke(this);
-            activeBuffs.Add(buff);
-            //Debug.Log("Buff " + buff.name + " applied.");
-        }
+        // Apply the buff effect
+        buff.ApplyEffect?.Invoke(this);
+        activeBuffs.Add(buff);
+
+        // Inform BuffManager to add the buff symbol with ID and buff name
+        buffManager.AddBuffSymbol(buff.name, buff.GetID(), this.gameObject);
     }
 
     public void RemoveBuff(Buff buff)
     {
-        buff.RemoveEffect?.Invoke(this);
-        activeBuffs.Remove(buff);
+        // Find the buff in the activeBuffs list
+        int buffIndex = activeBuffs.FindIndex(b => b == buff);
+        if (buffIndex != -1)
+        {
+            Buff removedBuff = activeBuffs[buffIndex];
+            activeBuffs.RemoveAt(buffIndex);
+
+            // Get the ID from the removed buff (assuming Buff has an ID getter)
+            int buffId = removedBuff.GetID();
+
+            // Inform BuffManager to remove the buff symbol with the ID
+            buffManager.RemoveBuffSymbol(buffId);
+
+            // Apply buff removal effect (if any)
+            removedBuff.RemoveEffect?.Invoke(this);
+        }
     }
 
     public void useMana(float amount)
@@ -124,14 +154,5 @@ public class CharacterBase : MonoBehaviour
         Destroy(gameObject);
     }
 
-    protected virtual void Update()
-    {
-        for (int i = activeBuffs.Count - 1; i >= 0; i--)
-        {
-            if (activeBuffs[i].Update(Time.deltaTime))
-            {
-                RemoveBuff(activeBuffs[i]);
-            }
-        }
-    }
+   
 }

@@ -10,8 +10,9 @@ public class BossController : CharacterBase
     public float shootingInterval = 2f;
     private float shootingTimer;
 
-    void Update()
+    protected override void Update()
     {
+        base.Update();
         shootingTimer += Time.deltaTime;
         if (shootingTimer >= shootingInterval)
         {

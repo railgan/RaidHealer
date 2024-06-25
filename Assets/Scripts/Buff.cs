@@ -9,6 +9,7 @@ public class Buff
     public Action<CharacterBase> ApplyEffect;
     public Action<CharacterBase> RemoveEffect;
     private float remainingDuration;
+    private int id;
 
     public Buff(string name, float duration, Action<CharacterBase> applyEffect, Action<CharacterBase> removeEffect)
     {
@@ -17,6 +18,7 @@ public class Buff
         this.ApplyEffect = applyEffect;
         this.RemoveEffect = removeEffect;
         this.remainingDuration = duration;
+        this.id = BuffManager.Instance.GetNextBuffId();
     }
 
     public bool Update(float deltaTime)
@@ -33,5 +35,10 @@ public class Buff
     public void RefreshDuration()
     {
         remainingDuration = duration;
+    }
+
+    public int GetID()
+    {
+        return id;
     }
 }

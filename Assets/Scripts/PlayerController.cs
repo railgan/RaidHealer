@@ -18,7 +18,7 @@ public class PlayerController : CharacterBase
         
     }
 
-    void Update()
+    protected override void Update()
     {
         ProcessMovementInputs();
         ProcessAbilityInputs();
