@@ -10,6 +10,9 @@ public class BossController : CharacterBase
     public float shootingInterval = 2f;
     private float shootingTimer;
 
+    public GameObject abilityShapePrefab;
+
+
     protected override void Update()
     {
         base.Update();
@@ -19,7 +22,19 @@ public class BossController : CharacterBase
             ShootAtRandomTarget();
             shootingTimer = 0f;
         }
+        SpawnDamageCircle();
     }
+
+    public void SpawnDamageCircle()
+    {
+        PlayerController[] potentialTargets = FindObjectsOfType<PlayerController>();
+        if (potentialTargets.Length == 0) return; // No targets found
+        PlayerController target = potentialTargets[Random.Range(0, potentialTargets.Length)];
+        GameObject shape = Instantiate(abilityShapePrefab, target.transform.position, Quaternion.identity);
+
+        //AbilityShape abilityShape = shape.GetComponent<AbilityShape>();
+    }
+
 
     void ShootAtRandomTarget()
     {
