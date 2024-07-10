@@ -15,6 +15,8 @@ public class CharacterBase : MonoBehaviour
     private List<Buff> activeBuffs = new List<Buff>();
     private BuffManager buffManager;
 
+    private Dictionary<string, float> cooldowns = new Dictionary<string, float>();
+
 
     private void Awake()
     {
@@ -154,5 +156,15 @@ public class CharacterBase : MonoBehaviour
         Destroy(gameObject);
     }
 
-   
+    // Cooldown methods
+    public bool IsAbilityOnCooldown(string abilityName)
+    {
+        return cooldowns.ContainsKey(abilityName);
+    }
+
+    public void StartCooldown(string abilityName, float cooldownTime)
+    {
+        cooldowns[abilityName] = cooldownTime;
+    }
+
 }
