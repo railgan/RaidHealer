@@ -194,7 +194,7 @@ PrefabInstance:
     - target: {fileID: 1595208425839744248, guid: 849e2d644c908ca48a3a8bb000377d77, type: 3}
       propertyPath: abilityShapePrefab
       value: 
-      objectReference: {fileID: 5045177306700057527, guid: b8dda7c740c2e3540a0e062ddea20ea4, type: 3}
+      objectReference: {fileID: 5045177306700057527, guid: e04ed08f63479a14e9cba50cfd43b353, type: 3}
     - target: {fileID: 6555195830079555912, guid: 849e2d644c908ca48a3a8bb000377d77, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.18

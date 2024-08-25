@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class AbilityShape : MonoBehaviour
@@ -5,11 +6,17 @@ public class AbilityShape : MonoBehaviour
     public float damage = 90f;
     public float delay = 2.0f;
     public string targetTag = "Enemy"; // Default target
+    public Boolean growing = true;
+    private float startTime;
+    public Vector3 targetScale = new Vector3(1f, 1f, 1f);
+    private Vector3 initialScale;
+
 
     private CircleCollider2D circleCollider;
 
     void Start()
     {
+               
         // Hole den CircleCollider2D vom GameObject
         circleCollider = GetComponent<CircleCollider2D>();
         if (circleCollider == null)
@@ -18,8 +25,24 @@ public class AbilityShape : MonoBehaviour
             return;
         }
 
+        startTime = Time.time;
+        initialScale = transform.localScale;
+
         // Starte die Verzögerung
         Invoke(nameof(DoDamage), delay);
+    }
+
+    void Update()
+    {
+        float elapsedTime = Time.time - startTime;
+       
+        // Calculate the scaled size based on elapsed time and scale factor
+        float scale = (1/delay*elapsedTime);
+
+        // Clamp the scale to the target scale
+        scale = Mathf.Clamp(scale, initialScale.x, targetScale.x);
+        transform.localScale = new Vector3(scale, scale, scale);
+        
     }
 
     private void DoDamage()
@@ -43,12 +66,11 @@ public class AbilityShape : MonoBehaviour
                 }
             }
         }
-
-        // Optional: Zerstöre den Schadenskreis nach dem Zufügen von Schaden
-        Destroy(gameObject, 0.5f);
+        
+        Destroy(gameObject.transform.parent.gameObject);
+        //Destroy(gameObject, 0.5f);
     }
 
-    // Zeichne den Radius im Editor, um die Größe des Schadenskreises zu visualisieren
     private void OnDrawGizmosSelected()
     {
         if (circleCollider == null)
