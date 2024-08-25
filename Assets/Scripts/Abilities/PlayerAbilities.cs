@@ -11,7 +11,7 @@ public class PlayerAbilities : MonoBehaviour
     {
         // Initialize available abilities here or in another appropriate place
         availableAbilities.Add(new HealAbility()); // Add the Heal ability to the available pool
-        Debug.Log("equiped heal");
+
         // Directly equip the Heal ability for demonstration purposes
         EquipAbility(0, new HealAbility());
         EquipAbility(1, new HasteBuffAbility());

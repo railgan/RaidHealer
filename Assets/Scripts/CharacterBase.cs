@@ -95,7 +95,6 @@ public class CharacterBase : MonoBehaviour
             healthBar.SetHealth(health / maxHealth);
         }
 
-        Debug.Log(gameObject.name + " healed for " + amount + ". Current health: " + health);
     }
     public void ApplyBuff(Buff buff)
     {
@@ -152,7 +151,6 @@ public class CharacterBase : MonoBehaviour
     {
         // Handle the death of the character
         // This could be destroying the GameObject, playing an animation, etc.
-        Debug.Log(gameObject.name + " died.");
         Destroy(gameObject);
     }
 

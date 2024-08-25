@@ -34,7 +34,6 @@ public class BuffManager : MonoBehaviour
 
         // Calculate position slightly above the buff target
         Vector3 targetPosition = buffTarget.transform.position;
-        Debug.Log(targetPosition);
         Vector3 offset = new Vector3(-.4f, 0.85f, 0f); // Adjust offset for desired placement above target
         buffSymbol.transform.position = targetPosition + offset;
 
@@ -45,11 +44,11 @@ public class BuffManager : MonoBehaviour
 
     public void RemoveBuffSymbol(int buffId)
     {
-        Debug.Log("Trying to remove a buff: " + buffId);
+
         int index = buffSymbols.FindIndex(symbol => symbol.GetComponent<BuffSymbolData>().id == (buffId));
         if (index != -1)
         {
-            Debug.Log("Removing a buff");
+
             GameObject buffSymbol = buffSymbols[index];
             buffSymbols.RemoveAt(index);
             Destroy(buffSymbol);

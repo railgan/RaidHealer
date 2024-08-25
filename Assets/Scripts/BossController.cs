@@ -61,6 +61,7 @@ public class BossController : CharacterBase
 
         PlayerController target = potentialTargets[Random.Range(0, potentialTargets.Length)];
         GameObject shape = Instantiate(abilityShapePrefab, target.transform.position, Quaternion.identity);
+        shape.GetComponent<AbilityShape>().targetTag = "Friendly";
 
         // Add attack rotation logic here (e.g., using a coroutine)
 
