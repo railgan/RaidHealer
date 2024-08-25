@@ -103,7 +103,7 @@ public class CharacterBase : MonoBehaviour
         activeBuffs.Add(buff);
 
         // Inform BuffManager to add the buff symbol with ID and buff name
-        buffManager.AddBuffSymbol(buff.name, buff.GetID(), this.gameObject);
+        //buffManager.AddBuffSymbol(buff.name, buff.GetID(), this.gameObject);
     }
 
     public void RemoveBuff(Buff buff)
@@ -119,7 +119,7 @@ public class CharacterBase : MonoBehaviour
             int buffId = removedBuff.GetID();
 
             // Inform BuffManager to remove the buff symbol with the ID
-            buffManager.RemoveBuffSymbol(buffId);
+            //buffManager.RemoveBuffSymbol(buffId);
 
             // Apply buff removal effect (if any)
             removedBuff.RemoveEffect?.Invoke(this);

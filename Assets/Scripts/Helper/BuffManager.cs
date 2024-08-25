@@ -25,21 +25,31 @@ public class BuffManager : MonoBehaviour
             return _instance;
         }
     }
-
+/*
     public void AddBuffSymbol(string buffName, int buffID, GameObject buffTarget)
     {
         GameObject buffSymbolPrefab = Resources.Load<GameObject>("Prefabs/UI/BuffSymbol");
-        GameObject buffSymbol = Instantiate(buffSymbolPrefab, canvas.transform);
-        buffSymbol.GetComponentInChildren<TMPro.TMP_Text>().text = buffName[..1]; ;  // Use TMP_Text
+        GameObject buffSymbol = Instantiate(buffSymbolPrefab, buffTarget.transform); // Attach to buffTarget
 
-        // Calculate position slightly above the buff target
-        Vector3 targetPosition = buffTarget.transform.position;
-        Vector3 offset = new Vector3(-.4f, 0.85f, 0f); // Adjust offset for desired placement above target
-        buffSymbol.transform.position = targetPosition + offset;
+        // Get the Rect Transform component of the buff symbol
+        RectTransform rectTransform = buffSymbol.GetComponent<RectTransform>();
+
+        // Set the anchor point to the top left corner relative to the buff target
+        rectTransform.anchorMin = new Vector2(0.5f, 1f);
+        rectTransform.anchorMax = new Vector2(0.5f, 1f);
+
+        // Set the pivot point to the top left corner
+        rectTransform.pivot = new Vector2(0.5f, 1f);
+
+        // Set the text
+        buffSymbol.GetComponentInChildren<TMPro.TMP_Text>().text = buffName[..1];
+
+        // Adjust the offset to position the buff symbol slightly above the buff target
+        Vector3 offset = new Vector3(0f, 0.85f, 0f); // Adjust offset as needed
+        rectTransform.anchoredPosition = offset;
 
         buffSymbol.GetComponent<BuffSymbolData>().id = buffID;
         buffSymbols.Add(buffSymbol);
-    //    UpdateBuffSymbols();
     }
 
     public void RemoveBuffSymbol(int buffId)
@@ -54,7 +64,7 @@ public class BuffManager : MonoBehaviour
             Destroy(buffSymbol);
         }
     }
-
+*/
 
 
     public int GetNextBuffId() // New method to provide next ID
