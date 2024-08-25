@@ -7,45 +7,83 @@ public class BossController : CharacterBase
     public GameObject projectilePrefab;
     public Transform shootingPoint;
 
-    public float shootingInterval = 2f;
-    private float shootingTimer;
+    public float autoAttackInterval = 0.5f;
+    private float autoAttackCooldown;
 
     public GameObject abilityShapePrefab;
 
+    private float damageCircleCooldown = 5f;
+    private float damageCircleTimer;
+
+    private bool isAttacking = false;
+    private float attackTime = 0.5f;
 
     protected override void Update()
     {
         base.Update();
-        shootingTimer += Time.deltaTime;
-        if (shootingTimer >= shootingInterval)
+
+        HandleDamageCircle();
+        HandleAutoAttack();
+        
+    }
+
+    private void HandleAutoAttack()
+    {
+        autoAttackCooldown += Time.deltaTime;
+        if (autoAttackCooldown >= autoAttackInterval && !isAttacking)
         {
-            ShootAtRandomTarget();
-            shootingTimer = 0f;
+            AutoAttack();
+            autoAttackCooldown = 0f;
         }
-        SpawnDamageCircle();
+    }
+
+    private void HandleDamageCircle()
+    {
+        damageCircleTimer += Time.deltaTime;
+        if (damageCircleTimer >= damageCircleCooldown && !isAttacking)
+        {
+            SpawnDamageCircle();
+            damageCircleTimer = 0f;
+        }
     }
 
     public void SpawnDamageCircle()
     {
+        if (isAttacking) return; // Boss is already attacking
+        isAttacking = true;
+
         PlayerController[] potentialTargets = FindObjectsOfType<PlayerController>();
-        if (potentialTargets.Length == 0) return; // No targets found
+        if (potentialTargets.Length == 0)
+        {
+            isAttacking = false;
+            return; // No targets found
+        }
+
         PlayerController target = potentialTargets[Random.Range(0, potentialTargets.Length)];
         GameObject shape = Instantiate(abilityShapePrefab, target.transform.position, Quaternion.identity);
 
-        //AbilityShape abilityShape = shape.GetComponent<AbilityShape>();
+        // Add attack rotation logic here (e.g., using a coroutine)
+
+        Invoke("EndAttack", attackTime);
     }
 
-
-    void ShootAtRandomTarget()
+    void AutoAttack()
     {
+        if (isAttacking) return; // Boss is already attacking
+        isAttacking = true;
+
         // Find all potential targets tagged as "Friendly"
         GameObject[] potentialTargets = GameObject.FindGameObjectsWithTag("Friendly");
-        if (potentialTargets.Length == 0) return; // No targets found
+        if (potentialTargets.Length == 0)
+        {
+            isAttacking = false;
+            return; // No targets found
+        }
 
         // Select a random target
         GameObject target = potentialTargets[Random.Range(0, potentialTargets.Length)];
         Vector2 directionTowardsTarget = target.transform.position - shootingPoint.position;
-        
+
         // Instantiate and initialize the projectile
         GameObject projectile = Instantiate(projectilePrefab, shootingPoint.position, Quaternion.identity);
         Projectile projectileScript = projectile.GetComponent<Projectile>();
@@ -58,5 +96,14 @@ public class BossController : CharacterBase
         // Set the projectile's rotation to face the target
         Vector2 directionRotatedClockwise = new Vector2(directionTowardsTarget.y, -directionTowardsTarget.x);
         projectile.transform.right = directionRotatedClockwise;
+
+        // Add attack rotation logic here (e.g., using a coroutine)
+
+        Invoke("EndAttack", attackTime);
+    }
+
+    private void EndAttack()
+    {
+        isAttacking = false;
     }
 }
