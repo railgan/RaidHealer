@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : CharacterBase
@@ -6,6 +7,9 @@ public class PlayerController : CharacterBase
     private Rigidbody2D rb;
     private Vector2 moveDirection;
     private PlayerAbilities playerAbilities;
+    public LayerMask wallLayer;  // Assign the wall layer in the Inspector
+    public float rayLength = 0.1f; // Length of the raycast for collision detection
+
 
 
     protected override void Start()
@@ -50,6 +54,23 @@ public class PlayerController : CharacterBase
 
     void Move()
     {
-        rb.velocity = new Vector2(moveDirection.x * movementSpeed, moveDirection.y * movementSpeed);
+        // Check if there's an obstacle in the direction of movement
+        if (CanMove(moveDirection))
+        {
+            rb.velocity = new Vector2(moveDirection.x * movementSpeed, moveDirection.y * movementSpeed);
+        }
+        else
+        {
+            rb.velocity = Vector2.zero; // Stop the player if a wall is detected
+        }
+    }
+
+    bool CanMove(Vector2 direction)
+    {
+        // Perform a raycast in the direction of movement
+        RaycastHit2D hit = Physics2D.Raycast(rb.position, direction, rayLength, wallLayer);
+
+        // Return true if there's no wall in the way, false if there is
+        return hit.collider == null;
     }
 }
